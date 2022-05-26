@@ -63,29 +63,26 @@ func getPostsHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func CreateGetPostResponse(posts []Post, comments []Comment) []GetPostsResponse {
-
 	response := make([]GetPostsResponse, 0)
-
-	for _, p := range posts {
-		c := getCommentByPostId(p.Id, comments)
-		r := GetPostsResponse{
-			Id:      p.Id,
-			UserId:  p.UserId,
-			Title:   p.Title,
-			Body:    p.Body,
-			Comment: c.Body,
+	for _, post := range posts {
+		comment := getCommentByPostId(post.Id, comments)
+		responseItem := GetPostsResponse{
+			Id:      post.Id,
+			UserId:  post.UserId,
+			Title:   post.Title,
+			Body:    post.Body,
+			Comment: comment.Body,
 		}
 
-		response = append(response, r)
+		response = append(response, responseItem)
 	}
-
 	return response
 }
 
 func getCommentByPostId(id int64, comments []Comment) Comment {
-	for _, c := range comments {
-		if c.PostId == id {
-			return c
+	for _, comment := range comments {
+		if comment.PostId == id {
+			return comment
 		}
 	}
 	return Comment{}
