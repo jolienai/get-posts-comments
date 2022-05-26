@@ -21,7 +21,7 @@ type Comment struct {
 	Body   string `json:"body"`
 }
 
-type PostResponse struct {
+type GetPostsResponse struct {
 	Id      int64  `json:"id"`
 	UserId  int64  `json:"userId"`
 	Title   string `json:"title"`
@@ -49,7 +49,7 @@ func getPostsHandler(w http.ResponseWriter, req *http.Request) {
 	commentsChannel := make(chan []Comment)
 	go getComments(commentsChannel)
 
-	response := CreateResponse(<-postsChannel, <-commentsChannel)
+	response := CreateGetPostResponse(<-postsChannel, <-commentsChannel)
 
 	js, err := json.Marshal(response)
 	if err != nil {
@@ -62,13 +62,13 @@ func getPostsHandler(w http.ResponseWriter, req *http.Request) {
 
 }
 
-func CreateResponse(posts []Post, comments []Comment) []PostResponse {
+func CreateGetPostResponse(posts []Post, comments []Comment) []GetPostsResponse {
 
-	response := make([]PostResponse, 0)
+	response := make([]GetPostsResponse, 0)
 
 	for _, p := range posts {
 		c := getCommentByPostId(p.Id, comments)
-		r := PostResponse{
+		r := GetPostsResponse{
 			Id:      p.Id,
 			UserId:  p.UserId,
 			Title:   p.Title,
