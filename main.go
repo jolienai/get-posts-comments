@@ -22,11 +22,17 @@ type Comment struct {
 }
 
 type GetPostsResponse struct {
-	Id      int64  `json:"id"`
-	UserId  int64  `json:"userId"`
-	Title   string `json:"title"`
-	Body    string `json:"body"`
-	Comment string `json:"comment"`
+	Id       int64             `json:"id"`
+	UserId   int64             `json:"userId"`
+	Title    string            `json:"title"`
+	Body     string            `json:"body"`
+	Comments []CommentResponse `json:"comments"`
+}
+
+type CommentResponse struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Body  string `json:"body"`
 }
 
 func main() {
@@ -65,13 +71,13 @@ func getPostsHandler(w http.ResponseWriter, req *http.Request) {
 func CreateGetPostResponse(posts []Post, comments []Comment) []GetPostsResponse {
 	response := make([]GetPostsResponse, 0)
 	for _, post := range posts {
-		comment := getCommentByPostId(post.Id, comments)
+		comments := getCommentsByPostId(post.Id, comments)
 		responseItem := GetPostsResponse{
-			Id:      post.Id,
-			UserId:  post.UserId,
-			Title:   post.Title,
-			Body:    post.Body,
-			Comment: comment.Body,
+			Id:       post.Id,
+			UserId:   post.UserId,
+			Title:    post.Title,
+			Body:     post.Body,
+			Comments: comments,
 		}
 
 		response = append(response, responseItem)
@@ -79,13 +85,14 @@ func CreateGetPostResponse(posts []Post, comments []Comment) []GetPostsResponse 
 	return response
 }
 
-func getCommentByPostId(id int64, comments []Comment) Comment {
+func getCommentsByPostId(id int64, comments []Comment) []CommentResponse {
+	result := make([]CommentResponse, 0)
 	for _, comment := range comments {
 		if comment.PostId == id {
-			return comment
+			result = append(result, CommentResponse{Name: comment.Name, Email: comment.Name, Body: comment.Body})
 		}
 	}
-	return Comment{}
+	return result
 }
 
 func getComments(response chan<- []Comment) {
